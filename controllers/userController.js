@@ -1,10 +1,10 @@
 const express = require('express');
-const userRepository = require('../repository/userRepository');
+const userService = require('../services/userService');
 
 const router = express.Router();
 
 router.post('/register', async (req, res) => {
-  const { user, err } = await userRepository.postUser(req.body);
+  const { user, err } = await userService.registerUser(req.body);
 
   if (err) {
     return res.status(err.status).json({ error: err.message });
@@ -12,6 +12,19 @@ router.post('/register', async (req, res) => {
 
   return res.status(200).json({
     user,
+  });
+});
+
+router.post('/login', async (req, res) => {
+  const { user, token, err } = await userService.loginUser(req.body);
+
+  if (err) {
+    return res.status(err.status).json({ error: err.message });
+  }
+
+  return res.status(200).json({
+    user,
+    token,
   });
 });
 

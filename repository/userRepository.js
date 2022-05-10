@@ -2,14 +2,6 @@ const userHelper = require('../helpers/userHelper');
 const User = require('../schemas/userSchema');
 
 const postUser = async (data) => {
-  let user;
-  let err;
-
-  if (!data) {
-    err = 'No payload';
-    return { user, err };
-  }
-
   const userData = {
     ...data,
     deposit: 0,
@@ -18,14 +10,19 @@ const postUser = async (data) => {
   };
 
   try {
-    user = await User.create(userData);
+    const user = await User.create(userData);
+    return { user };
   } catch (error) {
-    err = error;
+    return {
+      err: {
+        message: error,
+        status: 500,
+      },
+    };
   }
-  return { user, err };
 };
 
-const getUser = async (id) => User.findOne(({ id }));
+const getUser = async (query) => User.findOne(({ ...query }));
 
 const getUsers = async () => {
   let users;
