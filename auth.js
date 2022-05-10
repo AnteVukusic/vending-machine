@@ -11,7 +11,7 @@ const routeAuth = (req, res, next, role) => {
     res.status(400).json({ error: 'Access denied' });
   }
 
-  if (req.user && (req.user.role === roles.ADMIN || req.user.role === role)) {
+  if (req.user && (role === roles.ANY || req.user.role === roles.ADMIN || req.user.role === role)) {
     return next();
   }
   return res.status(400).json({ error: 'Access denied' });
@@ -21,6 +21,7 @@ const protectedRouteAuth = {
   [roles.ADMIN]: (req, res, next) => routeAuth(req, res, next, roles.ADMIN),
   [roles.BUYER]: (req, res, next) => routeAuth(req, res, next, roles.BUYER),
   [roles.SELLER]: (req, res, next) => routeAuth(req, res, next, roles.SELLER),
+  [roles.ANY]: (req, res, next) => routeAuth(req, res, next, roles.ANY),
 };
 
 module.exports = protectedRouteAuth;

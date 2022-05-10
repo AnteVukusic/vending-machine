@@ -33,33 +33,38 @@ const getProducts = async () => {
 };
 
 const putProduct = async (id, data) => {
-  let product; let
-    err;
-
   try {
-    product = await Product.findOneAndUpdate(
+    const product = await Product.findOneAndUpdate(
       { _id: id },
       { ...data },
-      { new: true },
+      { new: true }, // Ensures return of freshly updated object
     );
+    return {
+      product,
+    };
   } catch (error) {
-    err = error;
+    return {
+      err: {
+        message: 'Error while updating product in database',
+        status: 500,
+      },
+    };
   }
-  return { product, err };
 };
 
 const deleteProduct = async (id) => {
-  let product;
-  let err;
-
   try {
-    product = await Product.findOneAndDelete(
+    return await Product.findOneAndDelete(
       { _id: id },
     );
   } catch (error) {
-    err = error;
+    return {
+      err: {
+        message: 'Error while deleting product in database',
+        status: 500,
+      },
+    };
   }
-  return { product, err };
 };
 
 const productRepository = {
