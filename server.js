@@ -18,6 +18,7 @@ server.use(bodyParser.json());
 
 server.use(routes.USER, controllers.userController);
 server.use(routes.PRODUCT, controllers.productController);
+server.use(routes.TEST, controllers.testController);
 
 server.listen(port, () => {
   console.log(`Express app has run on port: ${port}`);

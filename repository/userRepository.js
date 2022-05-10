@@ -1,16 +1,8 @@
-const userHelper = require('../helpers/userHelper');
 const User = require('../schemas/userSchema');
 
 const postUser = async (data) => {
-  const userData = {
-    ...data,
-    deposit: 0,
-    role: 'buyer',
-    password: await userHelper.hashUserPassword(data.password),
-  };
-
   try {
-    const user = await User.create(userData);
+    const user = await User.create(data);
     return { user };
   } catch (error) {
     return {
@@ -25,14 +17,19 @@ const postUser = async (data) => {
 const getUser = async (query) => User.findOne(({ ...query }));
 
 const getUsers = async () => {
-  let users;
-  let err;
   try {
-    users = await User.find().sort({ createdAt: 'desc' });
+    const users = await User.find().sort({ createdAt: 'desc' });
+    return {
+      users,
+    };
   } catch (error) {
-    err = error;
+    return {
+      err: {
+        message: 'Error while returning users',
+        status: 500,
+      },
+    };
   }
-  return { users, err };
 };
 
 const putUser = async (id, data) => {

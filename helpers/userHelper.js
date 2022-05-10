@@ -19,6 +19,7 @@ const validateLoginModel = (loginData) => {
 
 const generateSessionToken = (user) => jwt.sign({
   id: user.name,
+  role: user.role,
 }, process.env.VM_APP_JWT_SECRET, {
   expiresIn: '8h',
 });

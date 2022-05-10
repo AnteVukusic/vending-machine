@@ -19,6 +19,7 @@ const registerModel = {
         $data: '1/password',
       },
     },
+    role: { type: 'string' },
   },
   required: ['name', 'password', 'confirmPassword'],
 };

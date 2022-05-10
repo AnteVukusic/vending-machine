@@ -1,3 +1,4 @@
+const roles = require('../constants/roles');
 const userHelper = require('../helpers/userHelper');
 const userRepository = require('../repository/userRepository');
 
@@ -22,7 +23,20 @@ const registerUser = async (registerData) => {
     };
   }
 
-  return userRepository.postUser(registerData);
+  if (registerData.role === roles.ADMIN) {
+    return {
+      err: {
+        message: 'Cannot register user with admin role without admin permission',
+        status: 400,
+      },
+    };
+  }
+
+  return userRepository.postUser({
+    ...registerData,
+    deposit: 0,
+    password: await userHelper.hashUserPassword(registerData.password),
+  });
 };
 
 const loginUser = async (loginData) => {
@@ -63,9 +77,12 @@ const loginUser = async (loginData) => {
   };
 };
 
+const getUsers = async () => userRepository.getUsers();
+
 const userService = {
   registerUser,
   loginUser,
+  getUsers,
 };
 
 module.exports = userService;
