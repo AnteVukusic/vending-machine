@@ -1,6 +1,8 @@
+const mongoose = require('mongoose');
 const roles = require('../constants/roles');
 const productHelper = require('../helpers/productHelper');
 const productRepository = require('../repository/productRepository');
+const userRepository = require('../repository/userRepository');
 
 const addProduct = async (productData, userId) => {
   const isDataValid = productHelper.validateProductModel(productData);
@@ -27,6 +29,109 @@ const addProduct = async (productData, userId) => {
     ...productData,
     sellerId: userId,
   });
+};
+
+const buyProducts = async (purchaceData, buyerId) => {
+  const isDataValid = productHelper.validatePurchaceModel(purchaceData);
+  if (!isDataValid) {
+    return {
+      err: {
+        message: 'Purchace data is not valid',
+        status: 400,
+      },
+    };
+  }
+
+  const { products } = await productRepository.getProducts({
+    _id: {
+      $in: purchaceData.products.map((p) => mongoose.Types.ObjectId(p.productId)),
+    },
+  });
+
+  if (!products || products.length < purchaceData.products.length) {
+    return {
+      err: {
+        message: 'Error while trying tu purchace some products',
+        status: 500,
+      },
+    };
+  }
+
+  const { user } = await userRepository.getUser({ _id: buyerId });
+
+  if (!user) {
+    return {
+      err: {
+        message: 'Error while trying to retrieve buyer from database',
+        status: 500,
+      },
+    };
+  }
+
+  const totalCost = productHelper.getTotalCost(products);
+
+  if (user.deposit < purchaceData.moneyCount || purchaceData.moneyCount < totalCost) {
+    return {
+      err: {
+        message: 'Insufficient funds',
+        status: 400,
+      },
+    };
+  }
+
+  const bulkOperations = [];
+  for (let i = 0; i < purchaceData.products.length; i++) {
+    bulkOperations.push({
+      updateOne: {
+        filter: { _id: purchaceData.products[i].productId },
+        update: {
+          $inc: { amount: -purchaceData.products[i].amount },
+        },
+      },
+    });
+  }
+
+  const productUpdateRes = await productRepository.bulkWrite(bulkOperations);
+  if (productUpdateRes.err) {
+    return {
+      err: {
+        message: 'Error while trying to buy selected products',
+        status: 500,
+      },
+    };
+  }
+
+  const { userUpdateErr } = await userRepository.putUser(
+    user.id,
+    {
+      deposit: user.deposit - totalCost,
+      $push: {
+        purchases: {
+          purchaceTimestamp: Date.now(),
+          items: purchaceData.products.map((p) => {
+            const { amount, productId } = p;
+            const productInfo = products.find((product) => product._id.toString() === productId);
+            return {
+              productName: productInfo.productName,
+              amountBought: amount,
+              cost: productInfo.cost,
+              productId,
+            };
+          }),
+        },
+      },
+    },
+  );
+
+  if (userUpdateErr) {
+    return {
+      err: {
+        message: 'Error while trying to update user purchace hisotry',
+        status: 500,
+      },
+    };
+  }
+  return {};
 };
 
 const getProduct = async (productId) => {
@@ -113,6 +218,7 @@ const productService = {
   getProducts,
   updateProduct,
   deleteProduct,
+  buyProducts,
 };
 
 module.exports = productService;

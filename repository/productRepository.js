@@ -16,9 +16,9 @@ const postProduct = async (data) => {
 
 const getProduct = async (query) => Product.findOne(({ ...query }));
 
-const getProducts = async () => {
+const getProducts = async (query) => {
   try {
-    const products = await Product.find().sort({ createdAt: 'desc' });
+    const products = await Product.find(query).sort({ createdAt: 'desc' });
     return {
       products,
     };
@@ -67,12 +67,27 @@ const deleteProduct = async (id) => {
   }
 };
 
+const bulkWrite = async (operations) => {
+  try {
+    await Product.bulkWrite(operations);
+    return {};
+  } catch (error) {
+    return {
+      err: {
+        message: 'Error while updating products',
+        status: 500,
+      },
+    };
+  }
+};
+
 const productRepository = {
   postProduct,
   getProduct,
   putProduct,
   deleteProduct,
   getProducts,
+  bulkWrite,
 };
 
 module.exports = productRepository;

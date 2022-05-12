@@ -66,6 +66,16 @@ router.delete('/delete-product/:id', protectedRouteAuth[roles.SELLER], async (re
 });
 
 // todo: implement
-router.post('/buy', async (req, res) => res.status(200).json({}));
+router.post('/buy', protectedRouteAuth[roles.BUYER], async (req, res) => {
+  const { err } = await productService.buyProducts(req.body, req.user.id);
+
+  if (err) {
+    return res.status(err.status).json({ error: err.message });
+  }
+
+  return res.status(200).json({
+    message: 'ok',
+  });
+});
 
 module.exports = router;

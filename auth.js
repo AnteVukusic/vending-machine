@@ -3,18 +3,18 @@ const roles = require('./constants/roles');
 
 const routeAuth = (req, res, next, role) => {
   const token = req.headers.authorization;
-  if (!token) res.status(400).json({ error: 'Access denied' });
+  if (!token) res.status(401).json({ error: 'Access denied' });
 
   try {
     req.user = jwt.verify(token, process.env.VM_APP_JWT_SECRET);
   } catch (ex) {
-    res.status(400).json({ error: 'Access denied' });
+    res.status(401).json({ error: 'Access denied' });
   }
 
   if (req.user && (role === roles.ANY || req.user.role === roles.ADMIN || req.user.role === role)) {
     return next();
   }
-  return res.status(400).json({ error: 'Access denied' });
+  return res.status(401).json({ error: 'Access denied' });
 };
 
 const protectedRouteAuth = {

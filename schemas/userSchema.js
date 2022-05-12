@@ -21,6 +21,7 @@ const userSchema = mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  purchases: [],
 });
 
 const User = mongoose.model('Users', userSchema);

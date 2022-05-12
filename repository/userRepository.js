@@ -14,7 +14,21 @@ const postUser = async (data) => {
   }
 };
 
-const getUser = async (query) => User.findOne(({ ...query }));
+const getUser = async (query) => {
+  try {
+    const user = await User.findOne({ ...query });
+    return {
+      user,
+    };
+  } catch (error) {
+    return {
+      err: {
+        message: 'Error while returning user',
+        status: 500,
+      },
+    };
+  }
+};
 
 const getUsers = async () => {
   try {
@@ -33,19 +47,21 @@ const getUsers = async () => {
 };
 
 const putUser = async (id, data) => {
-  let user; let
-    err;
-
   try {
-    user = await User.findOneAndUpdate(
+    const user = await User.findOneAndUpdate(
       { _id: id },
       { ...data },
       { new: true },
     );
+    return { user };
   } catch (error) {
-    err = error;
+    return {
+      err: {
+        message: error,
+        status: 500,
+      },
+    };
   }
-  return { user, err };
 };
 
 const deleteUser = async (id) => {

@@ -21,7 +21,7 @@ const generateSessionToken = (user) => jwt.sign({
   id: user.id,
   role: user.role,
 }, process.env.VM_APP_JWT_SECRET, {
-  expiresIn: '8h',
+  expiresIn: '360h',
 });
 
 const doPasswordsMatch = async (plain, cipher) => bcrypt.compare(plain, cipher);

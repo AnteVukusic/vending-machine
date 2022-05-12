@@ -13,7 +13,7 @@ const registerUser = async (registerData) => {
     };
   }
 
-  const user = await userRepository.getUser({ name: registerData.name });
+  const { user } = await userRepository.getUser({ name: registerData.name });
   if (user) {
     return {
       err: {
@@ -50,7 +50,7 @@ const loginUser = async (loginData) => {
     };
   }
 
-  const user = await userRepository.getUser({ name: loginData.name });
+  const { user } = await userRepository.getUser({ name: loginData.name });
 
   if (!user) {
     return {
@@ -79,10 +79,51 @@ const loginUser = async (loginData) => {
 
 const getUsers = async () => userRepository.getUsers();
 
+const getUser = async (userId, loggedUser) => {
+  if (loggedUser.role !== roles.ADMIN && loggedUser.id !== userId) {
+    return {
+      err: {
+        message: 'Cannot retrieve targeted user data',
+        status: 400,
+      },
+    };
+  }
+
+  return userRepository.getUser({ _id: userId });
+};
+
+const depositMoney = async (amount, userId, loggedUser) => {
+  if (loggedUser.role !== roles.ADMIN && loggedUser.id !== userId) {
+    return {
+      err: {
+        message: 'Deposit for this account is not possible',
+        status: 400,
+      },
+    };
+  }
+
+  const { user } = await userRepository.getUser({ _id: userId });
+
+  if (!user) {
+    return {
+      err: {
+        message: 'Error while retrieving targeted user',
+        status: 500,
+      },
+    };
+  }
+
+  return userRepository.putUser(userId, {
+    deposit: user.deposit + amount,
+  });
+};
+
 const userService = {
   registerUser,
   loginUser,
   getUsers,
+  getUser,
+  depositMoney,
 };
 
 module.exports = userService;
