@@ -21,7 +21,7 @@ const registerModel = {
     },
     role: { type: 'string' },
   },
-  required: ['name', 'password', 'confirmPassword'],
+  required: ['name', 'password', 'confirmPassword', 'role'],
 };
 
 const userModels = {

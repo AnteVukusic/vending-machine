@@ -17,15 +17,6 @@ const validateLoginModel = (loginData) => {
   return validate(loginData);
 };
 
-const generateSessionToken = (user) => jwt.sign({
-  id: user.id,
-  role: user.role,
-}, process.env.VM_APP_JWT_SECRET, {
-  expiresIn: '360h',
-});
-
-const doPasswordsMatch = async (plain, cipher) => bcrypt.compare(plain, cipher);
-
 const generateClientUserModel = (user) => ({
   purchases: user.purchases,
   id: user._id,
@@ -33,6 +24,18 @@ const generateClientUserModel = (user) => ({
   deposit: user.deposit,
   role: user.role,
 });
+
+const generateSessionToken = (user) => jwt.sign({
+  id: user.id,
+  role: user.role,
+  user: generateClientUserModel(user),
+  expiresAt: Date.now() + 8 * 2600 * 1000,
+  timestamp: Date.now(),
+}, process.env.VM_APP_JWT_SECRET, {
+  expiresIn: '8h',
+});
+
+const doPasswordsMatch = async (plain, cipher) => bcrypt.compare(plain, cipher);
 
 const generateClientUsersModel = (users) => {
   const ret = [];
