@@ -73,7 +73,6 @@ const loginUser = async (loginData) => {
 
   return {
     user,
-    token: userHelper.generateSessionToken(user),
   };
 };
 

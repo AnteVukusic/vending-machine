@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const controllers = require('./controllers/controllers');
 const routes = require('./constants/routes');
@@ -8,6 +9,10 @@ require('dotenv').config();
 
 const server = express();
 const port = process.env.PORT || 9999;
+console.log(process.env.VM_APP_CLIENT_URL);
+server.use(cors({
+  origin: process.env.VM_APP_CLIENT_URL.toString(),
+}));
 
 mongoose.connect(process.env.VM_APP_ATLAS_SERVER_CONNECTION_STRING, {
   useNewUrlParser: true, useUnifiedTopology: true,

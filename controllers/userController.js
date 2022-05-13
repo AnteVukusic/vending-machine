@@ -1,6 +1,7 @@
 const express = require('express');
 const protectedRouteAuth = require('../auth');
 const roles = require('../constants/roles');
+const userHelper = require('../helpers/userHelper');
 const userService = require('../services/userService');
 
 const router = express.Router();
@@ -13,20 +14,21 @@ router.post('/register', async (req, res) => {
   }
 
   return res.status(200).json({
-    user,
+    user: userHelper.generateClientUserModel(user),
+    token: userHelper.generateSessionToken(user),
   });
 });
 
 router.post('/login', async (req, res) => {
-  const { user, token, err } = await userService.loginUser(req.body);
+  const { user, err } = await userService.loginUser(req.body);
 
   if (err) {
     return res.status(err.status).json({ error: err.message });
   }
 
   return res.status(200).json({
-    user,
-    token,
+    user: userHelper.generateClientUserModel(user),
+    token: userHelper.generateSessionToken(user),
   });
 });
 
@@ -38,7 +40,7 @@ router.get('/get-users', protectedRouteAuth[roles.ADMIN], async (req, res) => {
   }
 
   return res.status(200).json({
-    users,
+    users: userHelper.generateClientUsersModel(users),
   });
 });
 
@@ -50,7 +52,7 @@ router.get('/get-user/:id', protectedRouteAuth[roles.ANY], async (req, res) => {
   }
 
   return res.status(200).json({
-    user,
+    user: userHelper.generateClientUserModel(user),
   });
 });
 
