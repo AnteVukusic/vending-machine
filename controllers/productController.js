@@ -29,8 +29,8 @@ router.get('/get-product/:id', protectedRouteAuth[roles.ANY], async (req, res) =
   });
 });
 
-router.get('/get-products', protectedRouteAuth[roles.ANY], async (req, res) => {
-  const { products, err } = await productService.getProducts();
+router.get('/get-products/:sellerId?', protectedRouteAuth[roles.ANY], async (req, res) => {
+  const { products, err } = await productService.getProducts(req.params.sellerId);
 
   if (err) {
     return res.status(err.status).json({ error: err.message });

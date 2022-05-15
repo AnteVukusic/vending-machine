@@ -150,8 +150,9 @@ const getProduct = async (productId) => {
   };
 };
 
-const getProducts = async () => {
-  const { products } = await productRepository.getProducts();
+const getProducts = async (sellerId) => {
+  const query = sellerId && sellerId !== '' ? { sellerId } : {};
+  const { products } = await productRepository.getProducts(query);
   if (!products) {
     return {
       err: {
