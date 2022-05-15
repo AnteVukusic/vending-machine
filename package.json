@@ -4,7 +4,7 @@
   "description": "Vending machine application - MVP match exercise",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
