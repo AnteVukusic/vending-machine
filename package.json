@@ -15,6 +15,9 @@
   "bugs": {
     "url": "https://github.com/AnteVukusic/vending-machine/issues"
   },
+  "engines": {
+    "node" : ">=14.0.0"
+  },
   "homepage": "https://github.com/AnteVukusic/vending-machine#readme",
   "dependencies": {
     "ajv": "^8.11.0",
