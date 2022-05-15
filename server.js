@@ -9,7 +9,7 @@ require('dotenv').config();
 
 const server = express();
 const port = process.env.PORT || 9999;
-console.log(process.env.VM_APP_CLIENT_URL);
+
 server.use(cors({
   origin: process.env.VM_APP_CLIENT_URL.toString(),
 }));
@@ -24,6 +24,10 @@ server.use(bodyParser.json());
 server.use(routes.USER, controllers.userController);
 server.use(routes.PRODUCT, controllers.productController);
 server.use(routes.TEST, controllers.testController);
+
+server.get('/', (req, res) => {
+  res.send('Vending machine app server');
+});
 
 server.listen(port, () => {
   console.log(`Express app has run on port: ${port}`);
