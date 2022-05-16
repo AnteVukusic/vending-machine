@@ -56,6 +56,18 @@ router.get('/get-user/:id', protectedRouteAuth[roles.ANY], async (req, res) => {
   });
 });
 
+router.get('/get-purchases/:id', protectedRouteAuth[roles.ANY], async (req, res) => {
+  const { purchases, err } = await userService.getUserPurchases(req.params.id, req.user);
+
+  if (err) {
+    return res.status(err.status).json({ error: err.message });
+  }
+
+  return res.status(200).json({
+    purchases,
+  });
+});
+
 router.post('/deposit', protectedRouteAuth[roles.BUYER], async (req, res) => {
   // Sending userId in body if we wan't to have option for admin >
   // to have posiblity to add deposit to some account, with no userId >

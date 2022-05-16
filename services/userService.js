@@ -78,6 +78,24 @@ const loginUser = async (loginData) => {
 
 const getUsers = async () => userRepository.getUsers();
 
+const getUserPurchases = async (userId, loggedUser) => {
+  if (loggedUser.role !== roles.ADMIN && loggedUser.id !== userId) {
+    return {
+      err: {
+        message: 'Cannot retrieve targeted user data',
+        status: 400,
+      },
+    };
+  }
+  const { user, err } = await userRepository.getUser({ _id: userId });
+
+  if (err) return err;
+
+  return {
+    purchases: user.purchases,
+  };
+};
+
 const getUser = async (userId, loggedUser) => {
   if (loggedUser.role !== roles.ADMIN && loggedUser.id !== userId) {
     return {
@@ -123,6 +141,7 @@ const userService = {
   getUsers,
   getUser,
   depositMoney,
+  getUserPurchases,
 };
 
 module.exports = userService;
