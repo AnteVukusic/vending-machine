@@ -50,11 +50,12 @@ const buyProducts = async (purchaceData, buyerId) => {
 
   for (let i = 0; i < purchaceData.products.length; i++) {
     const purchaseDataProduct = purchaceData.products[i];
-    const databaseProduct = products.find((p) => p._id === purchaseDataProduct.productId);
+    const databaseProduct = products.find((p) => p._id.toString() === purchaseDataProduct.productId);
     if (purchaseDataProduct.amount > databaseProduct.amount) {
       return {
         err: {
           message: 'Product is out of stock',
+          status: 400,
         },
       };
     }
@@ -179,7 +180,7 @@ const getProduct = async (productId) => {
 
 const getProducts = async (sellerId) => {
   const query = sellerId && sellerId !== '' ? { sellerId } : {};
-  const { products } = await productRepository.getProducts(query);
+  const { products } = await productRepository.getProducts({ ...query, amount: { $gt: 0 } });
   if (!products) {
     return {
       err: {
