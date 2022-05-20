@@ -66,7 +66,7 @@ router.delete('/delete-product/:id', protectedRouteAuth[roles.SELLER], async (re
 });
 
 router.post('/buy', protectedRouteAuth[roles.BUYER], async (req, res) => {
-  const { err } = await productService.buyProducts(req.body, req.user.id);
+  const { err, purchases, moneyDifference } = await productService.buyProducts(req.body, req.user.id);
 
   if (err) {
     return res.status(err.status).json({ error: err.message });
@@ -74,6 +74,8 @@ router.post('/buy', protectedRouteAuth[roles.BUYER], async (req, res) => {
 
   return res.status(200).json({
     message: 'ok',
+    purchases,
+    moneyDifference,
   });
 });
 

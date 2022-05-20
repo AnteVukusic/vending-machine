@@ -135,12 +135,39 @@ const depositMoney = async (amount, userId, loggedUser) => {
   });
 };
 
+const resetDeposit = async (userId, loggedUser) => {
+  if (loggedUser.role !== roles.ADMIN && loggedUser.id !== userId) {
+    return {
+      err: {
+        message: 'Deposit withdrawl for this account is not possible',
+        status: 400,
+      },
+    };
+  }
+
+  const { user } = await userRepository.getUser({ _id: userId });
+
+  if (!user) {
+    return {
+      err: {
+        message: 'Error while retrieving targeted user',
+        status: 500,
+      },
+    };
+  }
+
+  return userRepository.putUser(userId, {
+    deposit: 0,
+  });
+};
+
 const userService = {
   registerUser,
   loginUser,
   getUsers,
   getUser,
   depositMoney,
+  resetDeposit,
   getUserPurchases,
 };
 

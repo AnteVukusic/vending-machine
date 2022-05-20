@@ -36,7 +36,7 @@ const buyProducts = async (purchaceData, buyerId) => {
   if (!isDataValid) {
     return {
       err: {
-        message: 'Purchace data is not valid',
+        message: 'Purchace form model is not valid',
         status: 400,
       },
     };
@@ -51,7 +51,7 @@ const buyProducts = async (purchaceData, buyerId) => {
   if (!products || products.length < purchaceData.products.length) {
     return {
       err: {
-        message: 'Error while trying tu purchace some products',
+        message: 'Error while trying to purchase products',
         status: 500,
       },
     };
@@ -70,10 +70,19 @@ const buyProducts = async (purchaceData, buyerId) => {
 
   const totalCost = productHelper.getTotalCost(products);
 
-  if (user.deposit < purchaceData.moneyCount || purchaceData.moneyCount < totalCost) {
+  if (user.deposit < purchaceData.moneyCount) {
     return {
       err: {
-        message: 'Insufficient funds',
+        message: 'User has not enough deposit to buy selected products',
+        status: 400,
+      },
+    };
+  }
+
+  if (purchaceData.moneyCount < totalCost) {
+    return {
+      err: {
+        message: 'You\'ve added insufficient amount to buy selected products',
         status: 400,
       },
     };
@@ -101,6 +110,17 @@ const buyProducts = async (purchaceData, buyerId) => {
     };
   }
 
+  const purchasedItems = purchaceData.products.map((p) => {
+    const { amount, productId } = p;
+    const productInfo = products.find((product) => product._id.toString() === productId);
+    return {
+      productName: productInfo.productName,
+      amountBought: amount,
+      cost: productInfo.cost,
+      productId,
+    };
+  });
+
   const { userUpdateErr } = await userRepository.putUser(
     user.id,
     {
@@ -108,16 +128,7 @@ const buyProducts = async (purchaceData, buyerId) => {
       $push: {
         purchases: {
           purchaceTimestamp: Date.now(),
-          items: purchaceData.products.map((p) => {
-            const { amount, productId } = p;
-            const productInfo = products.find((product) => product._id.toString() === productId);
-            return {
-              productName: productInfo.productName,
-              amountBought: amount,
-              cost: productInfo.cost,
-              productId,
-            };
-          }),
+          items: purchasedItems,
         },
       },
     },
@@ -131,7 +142,11 @@ const buyProducts = async (purchaceData, buyerId) => {
       },
     };
   }
-  return {};
+
+  return {
+    purchases: purchasedItems,
+    moneyDifference: purchaceData.moneyCount - totalCost,
+  };
 };
 
 const getProduct = async (productId) => {

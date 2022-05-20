@@ -84,4 +84,16 @@ router.post('/deposit', protectedRouteAuth[roles.BUYER], async (req, res) => {
   });
 });
 
+router.post('/reset', protectedRouteAuth[roles.BUYER], async (req, res) => {
+  const { err } = await userService.resetDeposit(req.body.userId, req.user);
+
+  if (err) {
+    return res.status(err.status).json({ error: err.message });
+  }
+
+  return res.status(200).json({
+    message: 'ok',
+  });
+});
+
 module.exports = router;

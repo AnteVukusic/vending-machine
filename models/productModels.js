@@ -13,10 +13,11 @@ const purchaceModel = {
   properties: {
     moneyCount: {
       type: 'number',
-      minimum: 1,
+      minimum: 0,
     },
     products: {
       type: 'array',
+      minItems: 1,
       additionalItems: true,
       items: [
         {
